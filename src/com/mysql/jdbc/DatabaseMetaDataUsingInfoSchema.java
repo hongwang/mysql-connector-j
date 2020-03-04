@@ -1125,7 +1125,8 @@ public class DatabaseMetaDataUsingInfoSchema extends DatabaseMetaData {
 
         java.sql.PreparedStatement pStmt = null;
 
-        String sql = "SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, "
+        String sql = "SELECT * FROM ("
+                + "SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, "
                 + "CASE WHEN TABLE_TYPE='BASE TABLE' THEN CASE WHEN TABLE_SCHEMA = 'mysql' OR TABLE_SCHEMA = 'performance_schema' THEN 'SYSTEM TABLE' "
                 + "ELSE 'TABLE' END WHEN TABLE_TYPE='TEMPORARY' THEN 'LOCAL_TEMPORARY' ELSE TABLE_TYPE END AS TABLE_TYPE, "
                 + "TABLE_COMMENT AS REMARKS, NULL AS TYPE_CAT, NULL AS TYPE_SCHEM, NULL AS TYPE_NAME, NULL AS SELF_REFERENCING_COL_NAME, "
@@ -1154,8 +1155,9 @@ public class DatabaseMetaDataUsingInfoSchema extends DatabaseMetaData {
         } else {
             sql += "AND TABLE_NAME LIKE ? ";
         }
-        sql = sql + "HAVING TABLE_TYPE IN (?,?,?,?,?) ";
-        sql = sql + "ORDER BY TABLE_TYPE, TABLE_SCHEMA, TABLE_NAME";
+        sql = sql + ") as a ";
+        sql = sql + "WHERE TABLE_TYPE IN (?,?,?,?,?) ";
+        sql = sql + "ORDER BY TABLE_TYPE, TABLE_CAT, TABLE_NAME";
         try {
             pStmt = prepareMetaDataSafeStatement(sql);
 
